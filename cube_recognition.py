@@ -70,8 +70,6 @@ def find_edges(img):
 """
 edges - black-white image produced with Canny edge detection
 """
-
-
 def get_cube_corners(edges):
     rows, cols = edges.shape[:2]
     max_x_point = (-1, 0)
@@ -191,8 +189,8 @@ def side_colors(image, up_left, up_right, low_right, low_left):
 
 
 def main():
-    for i in range(5, 6):
-        img_name = f'test_images/cube_test_{i}.png'
+    for i in range(1, 3):
+        img_name = f'test_images/solved/blue_side_{i}.jfif'
         img, u_l, u_r, l_r, l_l = contoured_image(image_name=img_name)
         # small blur for better color recognition
         img = cv2.GaussianBlur(img, (5, 5), 0)
