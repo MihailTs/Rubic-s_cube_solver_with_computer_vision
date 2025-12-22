@@ -7,10 +7,10 @@ class ImageSampler:
     def __init__(self, input_folder, output_folder):
         self.input_folder = input_folder
         self.output_folder = output_folder
-        self.sample_count = 0
+        self.sample_count = 1470
         self.current_image = None
         self.current_image_path = None
-        
+
         # Create output folder if it doesn't exist
         Path(output_folder).mkdir(parents=True, exist_ok=True)
         
@@ -95,9 +95,9 @@ class ImageSampler:
         print(f"\nFinished! Total samples collected: {self.sample_count}")
 
 if __name__ == "__main__":
-    input_folder = "test_images/solved/blue"
+    input_folder = "test_images/solved/white"
     # <color>_samples - the name of the created folder
-    output_folder = "blue_samles"
+    output_folder = "data/white_samples"
     
     sampler = ImageSampler(input_folder, output_folder)
     sampler.process_images()
