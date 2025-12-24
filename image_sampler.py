@@ -95,7 +95,7 @@ class ImageSampler:
         print(f"\nFinished! Total samples collected: {self.sample_count}")
 
 if __name__ == "__main__":
-    input_folder = "test_images/solved/white"
+    input_folder = "images/solved/white"
     # <color>_samples - the name of the created folder
     output_folder = "data/white_samples"
     
