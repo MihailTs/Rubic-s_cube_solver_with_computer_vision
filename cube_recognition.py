@@ -1,56 +1,18 @@
 import cv2
 import math
 
-hsv_centers = {
-    "red": (0, 100, 25),
-    "orange": (12, 100, 50),
-    "yellow": (24, 100, 100),
-    "green": (53, 100, 50),
-    "blue": (90, 100, 53),
-    "white": (0, 0, 100)
-}
+import joblib
 
-def hsv_distance(hsv_1, hsv_2, hue_weight=1):
-    H_1, S_1, V_1 = hsv_1
-    H_2, S_2, V_2 = hsv_2
 
-    d_H = abs(H_1 - H_2)
-    d_H = min(d_H, 360 - d_H)
+def classify_pixel(image, classifier, pixel_x, pixel_y, w=20):
+    left = pixel_x - w/2
+    right = pixel_x + w/2
+    top = pixel_y - w/2
+    bottom = pixel_y + w/2
 
-    d_H *= hue_weight
+    patch = image[top:bottom, left:right]
+    return classifier.predict(patch)
 
-    d_S = S_1 - S_2
-    d_V = V_1 - V_2
-
-    return math.sqrt(d_H**2 + d_S**2 + d_V**2)
-
-def classify_pixel(image, pixel_x, pixel_y, kernel=3):
-    H = 0
-    S = 0
-    V = 0
-
-    start_row = max(0, pixel_x - int(kernel/2))
-    start_col = max(0, pixel_y - int(kernel/2))
-    end_row = min(image.shape[0] - 1, pixel_x + int(kernel/2))
-    end_col = min(image.shape[1] - 1, pixel_y + int(kernel/2))
-    for i in range(start_row, end_row + 1):
-        for j in range(start_col, end_col + 1):
-            H += float(image[i, j][0]) * 2
-            S += float(image[i, j][1]) * 100 / 255
-            V += float(image[i, j][2]) * 100 / 255
-
-    H = H / (kernel ** 2)
-    S = S / (kernel ** 2)
-    V = V / (kernel ** 2)
-
-    pixel_hsv = (H, S, V)
-
-    distances = {
-        color: hsv_distance(pixel_hsv, center, hue_weight=1.5)
-        for color, center in hsv_centers.items()
-    }
-
-    return min(distances, key=distances.get)
 
 def find_edges(img):
     rows, cols = img.shape[:2]
@@ -148,7 +110,7 @@ def contoured_image(image_name):
     return original, u_l, u_r, l_r, l_l
 
 
-def side_colors(image, up_left, up_right, low_right, low_left):
+def side_colors(image, up_left, up_right, low_right, low_left, classifier):
     primary_diag = (low_right[0] - up_left[0], low_right[1] - up_left[1])
     secondary_diag = (up_left[0] - low_left[0], up_left[1] - low_left[1])
     up_side = (up_right[0] - up_left[0], up_right[1] - up_left[1])
@@ -175,27 +137,28 @@ def side_colors(image, up_left, up_right, low_right, low_left):
            int(up_left[1] + (5 / 6) * up_side[1] + (1 / 2) * left_side[1]))
 
     colors = []
-    hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    colors.append(classify_pixel(hsv_image, p_1[0], p_1[1], kernel=7))
-    colors.append(classify_pixel(hsv_image, p_2[0], p_2[1], kernel=7))
-    colors.append(classify_pixel(hsv_image, p_3[0], p_3[1], kernel=7))
-    colors.append(classify_pixel(hsv_image, p_4[0], p_4[1], kernel=7))
-    colors.append(classify_pixel(hsv_image, p_5[0], p_5[1], kernel=7))
-    colors.append(classify_pixel(hsv_image, p_6[0], p_6[1], kernel=7))
-    colors.append(classify_pixel(hsv_image, p_7[0], p_7[1], kernel=7))
-    colors.append(classify_pixel(hsv_image, p_8[0], p_8[1], kernel=7))
-    colors.append(classify_pixel(hsv_image, p_9[0], p_9[1], kernel=7))
+    colors.append(classify_pixel(image, classifier, p_1[0], p_1[1]))
+    colors.append(classify_pixel(image, classifier, p_2[0], p_2[1]))
+    colors.append(classify_pixel(image, classifier, p_3[0], p_3[1]))
+    colors.append(classify_pixel(image, classifier, p_4[0], p_4[1]))
+    colors.append(classify_pixel(image, classifier, p_5[0], p_5[1]))
+    colors.append(classify_pixel(image, classifier, p_6[0], p_6[1]))
+    colors.append(classify_pixel(image, classifier, p_7[0], p_7[1]))
+    colors.append(classify_pixel(image, classifier, p_8[0], p_8[1]))
+    colors.append(classify_pixel(image, classifier, p_9[0], p_9[1]))
     return colors
 
 
 def main():
+    classifier = joblib.load('color_classification_models/knn_color_classifier.sav')
+
     for i in range(1, 3):
-        img_name = f'test_images/solved/blue_side_{i}.jfif'
+        img_name = f'images/unsolved/cube_test_{i}'
         img, u_l, u_r, l_r, l_l = contoured_image(image_name=img_name)
         # small blur for better color recognition
-        img = cv2.GaussianBlur(img, (5, 5), 0)
+        # img = cv2.GaussianBlur(img, (5, 5), 0)
         cv2.imshow(img_name, img)
-        side_squares_colors = side_colors(img, u_l, u_r, l_r, l_l)
+        side_squares_colors = side_colors(img, u_l, u_r, l_r, l_l, classifier)
         print(side_squares_colors)
 
     cv2.waitKey(0)
