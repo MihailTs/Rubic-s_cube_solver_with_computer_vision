@@ -1,3 +1,4 @@
+import cv2
 import joblib
 from sklearn.metrics import f1_score
 from sklearn.model_selection import GridSearchCV
@@ -12,9 +13,10 @@ from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 import numpy as np
+from PIL import Image
 
 from color_cnn import ColorCNN
-from color_recognition.simple_model_testing import evaluate_sklearn_on_test, load_images_to_array, train_sklearn_models
+from simple_model_testing import evaluate_sklearn_on_test, load_images_to_array, train_sklearn_models
 
 def main():
 
@@ -375,7 +377,10 @@ def main():
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     knn.fit(X_train_scaled, y_train)
+    unique_labels = np.array(dataset_train.classes)
     joblib.dump(knn, 'knn_color_predictor.sav')
+    joblib.dump(scaler, 'scaler.sav')
+    joblib.dump(unique_labels, 'label_mapping.sav')
 
 
 if __name__ == "__main__":

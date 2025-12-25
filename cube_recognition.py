@@ -1,17 +1,30 @@
 import cv2
 import math
-
 import joblib
+import numpy as np
+from sklearn.discriminant_analysis import StandardScaler
+from torchvision import transforms
+from PIL import Image
 
 
-def classify_pixel(image, classifier, pixel_x, pixel_y, w=20):
-    left = pixel_x - w/2
-    right = pixel_x + w/2
-    top = pixel_y - w/2
-    bottom = pixel_y + w/2
+def classify_pixel(image, classifier, scaler, label_mapping, pixel_x, pixel_y, w=20):
+    left = int(pixel_x - w/2)
+    right = int(pixel_x + w/2)
+    top = int(pixel_y - w/2)
+    bottom = int(pixel_y + w/2)
 
     patch = image[top:bottom, left:right]
-    return classifier.predict(patch)
+    
+    patch_pil = Image.fromarray(cv2.cvtColor(patch, cv2.COLOR_BGR2RGB))
+    train_transforms = transforms.Compose(
+        [transforms.Resize((20, 20)),
+         transforms.ToTensor()])
+    patch_tensor = train_transforms(patch_pil)
+    patch_flat = patch_tensor.view(1, -1).numpy()
+    
+    patch_scaled = scaler.transform(patch_flat)
+    prediction_idx = classifier.predict(patch_scaled)[0]
+    return label_mapping[prediction_idx]
 
 
 def find_edges(img):
@@ -102,7 +115,7 @@ def contoured_image(image_name):
 
     get_cube_corners(edges=edges)
     u_l, u_r, l_r, l_l = get_cube_corners(edges)
-
+ 
     original = cv2.line(original, u_l, u_r, (0, 255, 0), 3)
     original = cv2.line(original, u_r, l_r, (0, 255, 0), 3)
     original = cv2.line(original, l_r, l_l, (0, 255, 0), 3)
@@ -110,9 +123,9 @@ def contoured_image(image_name):
     return original, u_l, u_r, l_r, l_l
 
 
-def side_colors(image, up_left, up_right, low_right, low_left, classifier):
+def side_colors(image, up_left, up_right, low_right, low_left, classifier, scaler, label_mapping):
     primary_diag = (low_right[0] - up_left[0], low_right[1] - up_left[1])
-    secondary_diag = (up_left[0] - low_left[0], up_left[1] - low_left[1])
+    secondary_diag = (up_right[0] - low_left[0], up_right[1] - low_left[1])
     up_side = (up_right[0] - up_left[0], up_right[1] - up_left[1])
     left_side = (low_left[0] - up_left[0], low_left[1] - up_left[1])
 
@@ -136,30 +149,29 @@ def side_colors(image, up_left, up_right, low_right, low_left, classifier):
     p_6 = (int(up_left[0] + (5 / 6) * up_side[0] + (1 / 2) * left_side[0]),
            int(up_left[1] + (5 / 6) * up_side[1] + (1 / 2) * left_side[1]))
 
+    points = [p_1, p_2, p_3, p_4, p_5, p_6, p_7, p_8, p_9]
+    
     colors = []
-    colors.append(classify_pixel(image, classifier, p_1[0], p_1[1]))
-    colors.append(classify_pixel(image, classifier, p_2[0], p_2[1]))
-    colors.append(classify_pixel(image, classifier, p_3[0], p_3[1]))
-    colors.append(classify_pixel(image, classifier, p_4[0], p_4[1]))
-    colors.append(classify_pixel(image, classifier, p_5[0], p_5[1]))
-    colors.append(classify_pixel(image, classifier, p_6[0], p_6[1]))
-    colors.append(classify_pixel(image, classifier, p_7[0], p_7[1]))
-    colors.append(classify_pixel(image, classifier, p_8[0], p_8[1]))
-    colors.append(classify_pixel(image, classifier, p_9[0], p_9[1]))
+    for i, point in enumerate(points):
+        colors.append(classify_pixel(image, classifier, scaler, label_mapping, point[0], point[1]))
+    
     return colors
 
-
 def main():
-    classifier = joblib.load('color_classification_models/knn_color_classifier.sav')
+    classifier = joblib.load('color_classification_models/knn_color_predictor.sav')
+    scaler = joblib.load('color_classification_models/scaler.sav')
+    label_mapping = joblib.load('color_classification_models/label_mapping.sav')
+    print(label_mapping)
 
-    for i in range(1, 3):
-        img_name = f'images/unsolved/cube_test_{i}'
+    for i in range(1, 8):
+        img_name = f'images/unsolved/cube_test_{i}.png'
         img, u_l, u_r, l_r, l_l = contoured_image(image_name=img_name)
         # small blur for better color recognition
         # img = cv2.GaussianBlur(img, (5, 5), 0)
         cv2.imshow(img_name, img)
-        side_squares_colors = side_colors(img, u_l, u_r, l_r, l_l, classifier)
+        side_squares_colors = side_colors(img, u_l, u_r, l_r, l_l, classifier, scaler, label_mapping)
         print(side_squares_colors)
+        print("\n")
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
