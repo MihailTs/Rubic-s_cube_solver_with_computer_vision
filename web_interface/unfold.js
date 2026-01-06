@@ -1,20 +1,4 @@
 let s2 = (sketch) => {
-    let color_dict = {
-        0: [255, 255, 255],
-        1: [255, 0, 0],
-        2: [0, 255, 0],
-        3: [0, 0, 255],
-        4: [255, 165, 0],
-        5: [255, 255, 0],
-    }
-
-    let topSide = [0,0,0,0,0,0,0,0,0]
-    let bottomSide = [0,0,0,0,5,0,0,0,0]
-    let frontSide = [0,0,0,0,2,0,0,0,0]
-    let leftSide = [0,0,0,0,4,0,0,0,0]
-    let rightSide = [0,0,0,0,1,0,0,0,0]
-    let backSide = [0,0,0,0,3,0,0,0,0]
-
     let squareSize;
     let padding;
     let sidePadding;
@@ -30,12 +14,12 @@ let s2 = (sketch) => {
 
     sketch.draw = function() {
         sketch.background(200);
-        drawSide(topCenterCoordinates(), topSide);
-        drawSide(bottomCenterCoordinates(), bottomSide);
-        drawSide(frontCenterCoordinates(), frontSide);
-        drawSide(backCenterCoordinates(), backSide);
-        drawSide(leftCenterCoordinates(), leftSide);
-        drawSide(rightCenterCoordinates(), rightSide);
+        drawSide(topCenterCoordinates(), sharedCubeState.topSide);
+        drawSide(bottomCenterCoordinates(), sharedCubeState.bottomSide);
+        drawSide(frontCenterCoordinates(), sharedCubeState.frontSide);
+        drawSide(backCenterCoordinates(), sharedCubeState.backSide);
+        drawSide(leftCenterCoordinates(), sharedCubeState.leftSide);
+        drawSide(rightCenterCoordinates(), sharedCubeState.rightSide);
     }
 
     function drawSide(coordinates, sideColors) {
@@ -92,7 +76,11 @@ let s2 = (sketch) => {
     }
 
     function getColor(a) {
-        return sketch.color(color_dict[a][0], color_dict[a][1], color_dict[a][2])
+        return sketch.color(
+            sharedCubeState.color_dict[a][0], 
+            sharedCubeState.color_dict[a][1], 
+            sharedCubeState.color_dict[a][2]
+        );
     }
 
     function checkSideClicked(centerCoordinates, checkSide) {
@@ -119,12 +107,12 @@ let s2 = (sketch) => {
     }
 
     sketch.mouseClicked = function() {
-        checkSideClicked(frontCenterCoordinates(), frontSide);
-        checkSideClicked(topCenterCoordinates(), topSide);
-        checkSideClicked(leftCenterCoordinates(), leftSide);
-        checkSideClicked(rightCenterCoordinates(), rightSide);
-        checkSideClicked(bottomCenterCoordinates(), bottomSide);
-        checkSideClicked(backCenterCoordinates(), backSide);
+        checkSideClicked(frontCenterCoordinates(), sharedCubeState.frontSide);
+        checkSideClicked(topCenterCoordinates(), sharedCubeState.topSide);
+        checkSideClicked(leftCenterCoordinates(), sharedCubeState.leftSide);
+        checkSideClicked(rightCenterCoordinates(), sharedCubeState.rightSide);
+        checkSideClicked(bottomCenterCoordinates(), sharedCubeState.bottomSide);
+        checkSideClicked(backCenterCoordinates(), sharedCubeState.backSide);
     }
 };
 
