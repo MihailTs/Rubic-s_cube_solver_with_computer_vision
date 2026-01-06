@@ -1,0 +1,26 @@
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;           
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+#cubeContainer {
+    border: 3px solid rgb(0, 47, 255);
+    border-radius: 15px;
+    overflow: hidden;
+    order: 1;
+}
+
+#unfoldContainer {
+    border: 3px solid rgb(0, 47, 255);
+    border-radius: 15px;
+    overflow: hidden;
+    order: 2;
+}
+
+canvas {
+    display: block;
+}
