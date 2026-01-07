@@ -3,16 +3,26 @@ let s2 = (sketch) => {
     let padding;
     let sidePadding;
 
-    sketch.setup = function() {
+    let topSideImage;
+    let frontSideImage;
+    let leftSideImage;
+    let rightSideImage;
+    let bottomSideImage;
+    let backSideImage;
+    
+
+    sketch.setup = function () {
         let cnv = sketch.createCanvas(2 * sketch.windowWidth / 5, 3 * sketch.windowHeight / 4);
         cnv.parent('unfoldContainer');
         squareSize = sketch.width / 19;
         padding = squareSize / 5;
         sidePadding = 3 * squareSize / 2;
         sketch.frameRate(15);
+
+        setupImageInputs(sketch.width, 0);
     }
 
-    sketch.draw = function() {
+    sketch.draw = function () {
         sketch.background(200);
         drawSide(topCenterCoordinates(), sharedCubeState.topSide);
         drawSide(bottomCenterCoordinates(), sharedCubeState.bottomSide);
@@ -22,71 +32,127 @@ let s2 = (sketch) => {
         drawSide(rightCenterCoordinates(), sharedCubeState.rightSide);
     }
 
+    function setupImageInputs(xoff, yoff) {
+        createCenterFileInput(
+            topCenterCoordinates()[0] + xoff,
+            topCenterCoordinates()[1] + yoff,
+            squareSize,
+            img => topSideImage = img
+        );
+        createCenterFileInput(
+            frontCenterCoordinates()[0] + xoff,
+            frontCenterCoordinates()[1] + yoff,
+            squareSize,
+            img => frontSideImage = img
+        );
+        createCenterFileInput(
+            leftCenterCoordinates()[0] + xoff,
+            leftCenterCoordinates()[1] + yoff,
+            squareSize,
+            img => leftSideImage = img
+        );
+        createCenterFileInput(
+            rightCenterCoordinates()[0] + xoff,
+            rightCenterCoordinates()[1] + yoff,
+            squareSize,
+            img => rightSideImage = img
+        );
+        createCenterFileInput(
+            bottomCenterCoordinates()[0] + xoff,
+            bottomCenterCoordinates()[1] + yoff,
+            squareSize,
+            img => bottomSideImage = img
+        );
+        createCenterFileInput(
+            backCenterCoordinates()[0] + xoff,
+            backCenterCoordinates()[1] + yoff,
+            squareSize,
+            img => backSideImage = img
+        );
+    }
+
+    function createCenterFileInput(x, y, size, onImageLoaded) {
+        const input = sketch.createFileInput(file => {
+            if (file.type !== "image") return;
+
+            sketch.loadImage(file.data, img => {
+                onImageLoaded(img);
+            });
+        });
+
+        input.position(x - size / 2, y - size / 2);
+        input.size(size, size);
+
+        // Make it invisible but clickable
+        input.style("opacity", "0");
+        input.style("cursor", "pointer");
+
+        return input;
+    }
+
     function drawSide(coordinates, sideColors) {
         let x = coordinates[0];
         let y = coordinates[1];
         sketch.fill(getColor(sideColors[4]));
-        sketch.square(x - squareSize/2, y - squareSize/2, squareSize, 5);
+        sketch.square(x - squareSize / 2, y - squareSize / 2, squareSize, 5);
         sketch.fill(getColor(sideColors[7]));
-        sketch.square(x - squareSize/2, y - squareSize/2 + squareSize + padding, squareSize, 5);
+        sketch.square(x - squareSize / 2, y - squareSize / 2 + squareSize + padding, squareSize, 5);
         sketch.fill(getColor(sideColors[1]));
-        sketch.square(x - squareSize/2, y - squareSize/2 - squareSize - padding, squareSize, 5);
+        sketch.square(x - squareSize / 2, y - squareSize / 2 - squareSize - padding, squareSize, 5);
         sketch.fill(getColor(sideColors[5]));
-        sketch.square(x - squareSize/2 + padding + squareSize, y - squareSize/2, squareSize, 5);
+        sketch.square(x - squareSize / 2 + padding + squareSize, y - squareSize / 2, squareSize, 5);
         sketch.fill(getColor(sideColors[8]));
-        sketch.square(x - squareSize/2 + padding + squareSize, y - squareSize/2 + squareSize + padding, squareSize, 5);
+        sketch.square(x - squareSize / 2 + padding + squareSize, y - squareSize / 2 + squareSize + padding, squareSize, 5);
         sketch.fill(getColor(sideColors[2]));
-        sketch.square(x - squareSize/2 + padding + squareSize, y - squareSize/2 - squareSize - padding, squareSize, 5);
+        sketch.square(x - squareSize / 2 + padding + squareSize, y - squareSize / 2 - squareSize - padding, squareSize, 5);
         sketch.fill(getColor(sideColors[3]));
-        sketch.square(x - squareSize/2 - padding - squareSize, y - squareSize/2, squareSize, 5);
+        sketch.square(x - squareSize / 2 - padding - squareSize, y - squareSize / 2, squareSize, 5);
         sketch.fill(getColor(sideColors[6]));
-        sketch.square(x - squareSize/2 - padding - squareSize, y - squareSize/2 + squareSize + padding, squareSize, 5);
+        sketch.square(x - squareSize / 2 - padding - squareSize, y - squareSize / 2 + squareSize + padding, squareSize, 5);
         sketch.fill(getColor(sideColors[0]));
-        sketch.square(x - squareSize/2 - padding - squareSize, y - squareSize/2 - squareSize - padding, squareSize, 5);
+        sketch.square(x - squareSize / 2 - padding - squareSize, y - squareSize / 2 - squareSize - padding, squareSize, 5);
     }
 
     function topCenterCoordinates() {
-        return [(sketch.width / 2) - padding - (3 * squareSize / 2) - sidePadding / 2, 
-                sketch.height / 2 - (3 * squareSize) - (2 * padding) - sidePadding];
+        return [(sketch.width / 2) - padding - (3 * squareSize / 2) - sidePadding / 2,
+        sketch.height / 2 - (3 * squareSize) - (2 * padding) - sidePadding];
     }
 
     function bottomCenterCoordinates() {
-        return [(sketch.width / 2) - padding - (3 * squareSize / 2) - sidePadding / 2, 
-                sketch.height / 2  + (3 * squareSize) + (2 * padding) + sidePadding];
+        return [(sketch.width / 2) - padding - (3 * squareSize / 2) - sidePadding / 2,
+        sketch.height / 2 + (3 * squareSize) + (2 * padding) + sidePadding];
     }
 
     function frontCenterCoordinates() {
-        return [(sketch.width / 2) - padding - (3 * squareSize / 2) - sidePadding / 2, 
-                sketch.height / 2];
+        return [(sketch.width / 2) - padding - (3 * squareSize / 2) - sidePadding / 2,
+        sketch.height / 2];
     }
 
     function backCenterCoordinates() {
-        return [(sketch.width / 2) + (3 * padding) + (9 * squareSize / 2) + (3 * sidePadding / 2), 
-                sketch.height / 2];
+        return [(sketch.width / 2) + (3 * padding) + (9 * squareSize / 2) + (3 * sidePadding / 2),
+        sketch.height / 2];
     }
 
     function rightCenterCoordinates() {
-        return [(sketch.width / 2) + padding + (3 * squareSize / 2) + sidePadding / 2, 
-                sketch.height / 2];
+        return [(sketch.width / 2) + padding + (3 * squareSize / 2) + sidePadding / 2,
+        sketch.height / 2];
     }
 
     function leftCenterCoordinates() {
-        return [(sketch.width / 2) - (3 * padding) - (9 * squareSize / 2) - (3 * sidePadding / 2), 
-                sketch.height / 2];
+        return [(sketch.width / 2) - (3 * padding) - (9 * squareSize / 2) - (3 * sidePadding / 2),
+        sketch.height / 2];
     }
 
     function getColor(a) {
         return sketch.color(
-            sharedCubeState.color_dict[a][0], 
-            sharedCubeState.color_dict[a][1], 
+            sharedCubeState.color_dict[a][0],
+            sharedCubeState.color_dict[a][1],
             sharedCubeState.color_dict[a][2]
         );
     }
 
     function checkSideClicked(centerCoordinates, checkSide) {
-        // centers remain unchangable
-        // if (sketch.mouseX > centerCoordinates[0] - squareSize / 2 && sketch.mouseX < centerCoordinates[0] + squareSize / 2 && sketch.mouseY > centerCoordinates[1] - squareSize / 2 && sketch.mouseY < centerCoordinates[1] + squareSize / 2) {
-        //     checkSide[4] = (checkSide[4] + 1) % 6;
+        // centers are not changable
         if (sketch.mouseX > centerCoordinates[0] - squareSize / 2 && sketch.mouseX < centerCoordinates[0] + squareSize / 2 && sketch.mouseY > centerCoordinates[1] - squareSize / 2 - squareSize - padding && sketch.mouseY < centerCoordinates[1] - squareSize / 2 - padding) {
             checkSide[1] = (checkSide[1] + 1) % 6;
         } else if (sketch.mouseX > centerCoordinates[0] - squareSize / 2 && sketch.mouseX < centerCoordinates[0] + squareSize / 2 && sketch.mouseY > centerCoordinates[1] + squareSize / 2 + padding && sketch.mouseY < centerCoordinates[1] + squareSize / 2 + squareSize + padding) {
@@ -106,7 +172,7 @@ let s2 = (sketch) => {
         }
     }
 
-    sketch.mouseClicked = function() {
+    sketch.mouseClicked = function () {
         checkSideClicked(frontCenterCoordinates(), sharedCubeState.frontSide);
         checkSideClicked(topCenterCoordinates(), sharedCubeState.topSide);
         checkSideClicked(leftCenterCoordinates(), sharedCubeState.leftSide);
