@@ -19,11 +19,12 @@ let s2 = (sketch) => {
         sidePadding = 3 * squareSize / 2;
         sketch.frameRate(15);
 
-        setupImageInputs(sketch.width, 0);
+        setupImageInputs(cnv.position().x, cnv.position().y);
     }
 
     sketch.draw = function () {
         sketch.background(200);
+        addTextInstructions();
         drawSide(topCenterCoordinates(), sharedCubeState.topSide);
         drawSide(bottomCenterCoordinates(), sharedCubeState.bottomSide);
         drawSide(frontCenterCoordinates(), sharedCubeState.frontSide);
@@ -32,42 +33,49 @@ let s2 = (sketch) => {
         drawSide(rightCenterCoordinates(), sharedCubeState.rightSide);
     }
 
+    function addTextInstructions() {
+        sketch.textSize(15);
+        sketch.fill(0, 0, 40); 
+        sketch.text('Click a center square to add its corresponding side image.', 120, 20);
+        sketch.text('Click others to change color manualy.', 180, 40);
+    }
+
     function setupImageInputs(xoff, yoff) {
         createCenterFileInput(
             topCenterCoordinates()[0] + xoff,
             topCenterCoordinates()[1] + yoff,
             squareSize,
-            img => topSideImage = img
+            img => handleSideImageInput(img, sharedCubeState.topSide)
         );
         createCenterFileInput(
             frontCenterCoordinates()[0] + xoff,
             frontCenterCoordinates()[1] + yoff,
             squareSize,
-            img => frontSideImage = img
+            img => handleSideImageInput(img, sharedCubeState.frontSide)
         );
         createCenterFileInput(
             leftCenterCoordinates()[0] + xoff,
             leftCenterCoordinates()[1] + yoff,
             squareSize,
-            img => leftSideImage = img
+            img => handleSideImageInput(img, sharedCubeState.leftSide)
         );
         createCenterFileInput(
             rightCenterCoordinates()[0] + xoff,
             rightCenterCoordinates()[1] + yoff,
             squareSize,
-            img => rightSideImage = img
+            img => handleSideImageInput(img, sharedCubeState.rightSide)
         );
         createCenterFileInput(
             bottomCenterCoordinates()[0] + xoff,
             bottomCenterCoordinates()[1] + yoff,
             squareSize,
-            img => bottomSideImage = img
+            img => handleSideImageInput(img, sharedCubeState.bottomSide)
         );
         createCenterFileInput(
             backCenterCoordinates()[0] + xoff,
             backCenterCoordinates()[1] + yoff,
             squareSize,
-            img => backSideImage = img
+            img => handleSideImageInput(img, sharedCubeState.backSide)
         );
     }
 
@@ -75,9 +83,7 @@ let s2 = (sketch) => {
         const input = sketch.createFileInput(file => {
             if (file.type !== "image") return;
 
-            sketch.loadImage(file.data, img => {
-                onImageLoaded(img);
-            });
+            onImageLoaded(file.file);
         });
 
         input.position(x - size / 2, y - size / 2);
@@ -170,6 +176,43 @@ let s2 = (sketch) => {
         } else if (sketch.mouseX > centerCoordinates[0] + squareSize / 2 + padding && sketch.mouseX < centerCoordinates[0] + squareSize / 2 + squareSize + padding && sketch.mouseY > centerCoordinates[1] + squareSize / 2 + padding && sketch.mouseY < centerCoordinates[1] + squareSize / 2 + squareSize + padding) {
             checkSide[8] = (checkSide[8] + 1) % 6;
         }
+    }
+
+    async function handleSideImageInput(image, side) {
+         try {
+            const formData = new FormData();
+            formData.append("image", image);
+
+            const response = await fetch("http://localhost:8000", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            console.log("Server response:", data);
+
+            if (data.status == 'ok') {
+                console.log(`Image processed`);
+                console.log(data.predictions);
+
+                for(let i = 0; i < 9; i++) {
+                    // don't change center color
+                    if(i == 4) continue;
+                    side[i] = sharedCubeState.number_to_color[data.predictions[i]];
+                }
+            } else {
+                console.error("Processing failed:", data.message);
+            }
+        } catch (error) {
+            window.alert("Upload failed:", error);
+        }
+
+
     }
 
     sketch.mouseClicked = function () {

@@ -14,6 +14,14 @@ from http.server import BaseHTTPRequestHandler
 
 class SimpleJSONHandler(BaseHTTPRequestHandler):
 
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "http://127.0.0.1:5500")
+        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Max-Age", "86400")
+        self.end_headers()
+
     def do_POST(self):
         content_type = self.headers.get("Content-Type", "")
         if "multipart/form-data" not in content_type:
@@ -56,6 +64,7 @@ class SimpleJSONHandler(BaseHTTPRequestHandler):
         # Send JSON response
         response_json = json.dumps({"predictions": predictions, "status": "ok"})
         self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "http://127.0.0.1:5500")
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(response_json)))
         self.end_headers()
