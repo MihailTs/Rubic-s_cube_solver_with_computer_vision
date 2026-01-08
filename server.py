@@ -23,6 +23,15 @@ class SimpleJSONHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
+        if self.path == "/predict":
+            self.handle_predict()
+        elif self.path == "/solve":
+            self.handle_solve()
+        else:
+            self.send_error(404, "Endpoint not found")
+
+    def handle_predict(self):
+        """Handle image prediction requests"""
         content_type = self.headers.get("Content-Type", "")
         if "multipart/form-data" not in content_type:
             self.send_error(415, "Expected multipart/form-data")
@@ -37,7 +46,6 @@ class SimpleJSONHandler(BaseHTTPRequestHandler):
         parts = body.split(b"--" + boundary)
         for part in parts:
             if b'Content-Disposition' in part and b'name="image"' in part:
-                # Extract image bytes
                 match = re.search(b'\r\n\r\n(.*)\r\n$', part, re.DOTALL)
                 if not match:
                     continue
@@ -47,21 +55,17 @@ class SimpleJSONHandler(BaseHTTPRequestHandler):
             self.send_error(400, "Missing 'image' field")
             return
 
-        # Decode image to NumPy array
         image = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_COLOR)
         if image is None:
             self.send_error(400, "Invalid image data")
             return
 
-        # Access models from server
         classifier = self.server.classifier
         scaler = self.server.scaler
         label_mapping = self.server.label_mapping
 
-        # Predict
         predictions = predict(image, classifier, scaler, label_mapping)
 
-        # Send JSON response
         response_json = json.dumps({"predictions": predictions, "status": "ok"})
         self.send_response(200)
         self.send_header("Access-Control-Allow-Origin", "http://127.0.0.1:5500")
@@ -69,6 +73,35 @@ class SimpleJSONHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(response_json)))
         self.end_headers()
         self.wfile.write(response_json.encode("utf-8"))
+
+    def handle_solve(self):
+        content_type = self.headers.get("Content-Type", "")
+        if "application/json" not in content_type:
+            self.send_error(415, "Expected application/json")
+            return
+        
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length)
+        body = json.loads(body)
+
+        frontSide = body["0"]
+        topSide = body["1"]
+        leftSide = body["2"]
+        rightSide = body["3"]
+        bottomSide = body["4"]
+        backSide = body["5"]
+
+        print(frontSide)
+        print(topSide)
+
+        response_json = json.dumps({"greet:": "HI", "status": "ok"})
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "http://127.0.0.1:5500")
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(response_json)))
+        self.end_headers()
+        self.wfile.write(response_json.encode("utf-8"))
+
 
 def run(server_class=HTTPServer, handler_class=SimpleJSONHandler, port=8000, classifier=None, scaler=None, label_mapping=None):
     server_address = ("", port)

@@ -183,7 +183,7 @@ let s2 = (sketch) => {
             const formData = new FormData();
             formData.append("image", image);
 
-            const response = await fetch("http://localhost:8000", {
+            const response = await fetch("http://localhost:8000/predict", {
                 method: "POST",
                 body: formData
             });
@@ -211,7 +211,6 @@ let s2 = (sketch) => {
         } catch (error) {
             window.alert("Upload failed:", error);
         }
-
 
     }
 

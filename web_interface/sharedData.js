@@ -15,7 +15,7 @@ let sharedCubeState = {
         5: [255, 255, 0], // yellow
     },
 
-    color_to_number: {
+    number_to_color: {
         0: "white",
         1: "red",
         2: "green",
@@ -24,7 +24,7 @@ let sharedCubeState = {
         5: "yellow" 
     },
 
-    number_to_color: {
+    color_to_number: {
         "white": 0,
         "red": 1,
         "green": 2,
