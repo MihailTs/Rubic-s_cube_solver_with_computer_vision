@@ -1,17 +1,22 @@
 async function sendSolveRequest() {
         try {
-            console.log("here")
-            let object = {}
-            object[0] = sharedCubeState.frontSide;
-            object[1] = sharedCubeState.topSide;
-            object[2] = sharedCubeState.leftSide;
-            object[3] = sharedCubeState.rightSide;
-            object[4] = sharedCubeState.bottomSide;
-            object[5] = sharedCubeState.backSide;
+            let object = {
+                front: sharedCubeState.frontSide,
+                top: sharedCubeState.topSide,
+                left: sharedCubeState.leftSide,
+                right: sharedCubeState.rightSide,
+                bottom: sharedCubeState.bottomSide,
+                back: sharedCubeState.backSide
+            };
 
-            for(let i = 0; i < 6; i++) {
-               object[i] = object[i].map((element, index) => {return sharedCubeState.number_to_color[element]})
-            }
+            object = Object.fromEntries(
+                Object.entries(object).map(([key, element]) => [
+                    key,
+                    element.map(elem => sharedCubeState.number_to_color[elem])
+                ])
+            );
+
+            console.log(object);
 
             const response = await fetch("http://localhost:8000/solve", {
                 method: "POST",

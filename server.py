@@ -84,15 +84,12 @@ class SimpleJSONHandler(BaseHTTPRequestHandler):
         body = self.rfile.read(length)
         body = json.loads(body)
 
-        frontSide = body["0"]
-        topSide = body["1"]
-        leftSide = body["2"]
-        rightSide = body["3"]
-        bottomSide = body["4"]
-        backSide = body["5"]
-
-        print(frontSide)
-        print(topSide)
+        frontSide = body["front"]
+        topSide = body["top"]
+        leftSide = body["left"]
+        rightSide = body["right"]
+        bottomSide = body["bottom"]
+        backSide = body["back"]
 
         response_json = json.dumps({"greet:": "HI", "status": "ok"})
         self.send_response(200)
