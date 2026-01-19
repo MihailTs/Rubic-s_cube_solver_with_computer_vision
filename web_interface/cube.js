@@ -56,7 +56,7 @@ let s1 = (sketch) => {
             for (let col = -1; col <= 1; col++) {
                 sketch.push();
                 sketch.translate(col * (sticker + gap), row * (sticker + gap), 0);
-                
+
                 let colorKey = faceSide[index];
                 let rgb = sharedCubeState.color_dict[colorKey];
                 sketch.fill(rgb[0], rgb[1], rgb[2]);

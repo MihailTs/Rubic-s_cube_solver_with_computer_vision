@@ -6,7 +6,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 
-
 def load_images_to_array(dataloader, device=None):
     """Convert images from dataloader to numpy array and labels"""
     images_list = []

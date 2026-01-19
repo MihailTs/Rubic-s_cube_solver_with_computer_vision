@@ -150,6 +150,7 @@ let s2 = (sketch) => {
     }
 
     function getColor(a) {
+        // console.log(sharedCubeState.color_dict)
         return sketch.color(
             sharedCubeState.color_dict[a][0],
             sharedCubeState.color_dict[a][1],
@@ -197,13 +198,12 @@ let s2 = (sketch) => {
             console.log("Server response:", data);
 
             if (data.status == 'ok') {
-                console.log(`Image processed`);
                 console.log(data.predictions);
 
                 for(let i = 0; i < 9; i++) {
                     // don't change center color
                     if(i == 4) continue;
-                    side[i] = sharedCubeState.number_to_color[data.predictions[i]];
+                    side[i] = sharedCubeState.color_to_number[data.predictions[i]];
                 }
             } else {
                 console.error("Processing failed:", data.message);

@@ -16,7 +16,7 @@ async function sendSolveRequest() {
                 ])
             );
 
-            console.log(object);
+            // console.log(object);
 
             const response = await fetch("http://localhost:8000/solve", {
                 method: "POST",
@@ -37,7 +37,6 @@ async function sendSolveRequest() {
 
             if (data.status == 'ok') {
                 // console.log(`Image processed`);
-                console.log(data.greet);
 
                 // for(let i = 0; i < 9; i++) {
                 //     // don't change center color
@@ -50,6 +49,5 @@ async function sendSolveRequest() {
         } catch (error) {
             window.alert("Upload failed:", error);
         }
-
 
     }
