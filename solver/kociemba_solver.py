@@ -55,8 +55,8 @@ class KociembaCubeSolver:
         
         solution = kociemba.solve(cube_state)
         return solution
-        
     
+
     def validate_state(self, cube_state):
         """
         Validate that a cube state is valid.
@@ -107,16 +107,3 @@ class KociembaCubeSolver:
         print("      " + " ".join(D[3:6]))
         print("      " + " ".join(D[6:9]))
         print()
-
-
-def main():
-    solver = RubiksCubeSolver()
-    
-    print("\nSolving cube...")
-    solution = solver.solve("BDFUUDDUULFDRRRRRBLFBFFBRBUBDFBDUUUDRLFLLLLLDRRUFBDLBF")
-    print(f"Solution: {solution}")
-    
-
-
-if __name__ == "__main__":
-    main()

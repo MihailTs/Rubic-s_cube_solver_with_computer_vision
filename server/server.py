@@ -193,9 +193,8 @@ class SimpleJSONHandler(BaseHTTPRequestHandler):
             response_json = json.dumps({"steps": solving_steps})
             response_code = 200
         except Exception as e:
-            respons_code = 400
-            response_json = json.dumps({"error": "Illegaal cube state"})
-
+            response_code = 400
+            response_json = json.dumps({"error": "Illegal cube state"})
 
         self.send_response(response_code)
         self.send_header("Access-Control-Allow-Origin",
