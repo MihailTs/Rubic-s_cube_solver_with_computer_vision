@@ -68,6 +68,7 @@ canvas {
     border: 2px solid rgb(0, 47, 255);
     border-radius: 8px;
     color: rgb(0, 47, 255);
-    font-size: 14px;
-    font-weight: 500;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
 }
