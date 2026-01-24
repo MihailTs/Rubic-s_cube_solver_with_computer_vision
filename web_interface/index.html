@@ -10,13 +10,15 @@
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-    <div id="cubeContainer"></div>
-    <div id="unfoldContainer"></div>
+    <div style="display: flex; gap: 5px;">
+        <div id="cubeContainer"></div>
+        <div id="unfoldContainer"></div>
+    </div>
     
+    <button type="button" onclick="sendSolveRequest()">Solve</button>
+
     <script src="sharedData.js"></script>
     <script src="cube.js"></script>
     <script src="unfold.js"></script>
-
-    <button type="button" onclick="sendSolveRequest()">Solve</button>
 </body>
 </html>
