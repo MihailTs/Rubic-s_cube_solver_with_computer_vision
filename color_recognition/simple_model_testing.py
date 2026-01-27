@@ -28,7 +28,6 @@ def train_sklearn_models(X_train, y_train, X_val, y_val):
     """Train KNN, SVM, Logistic Regression, and Decision Tree models with GridSearchCV"""
     results = {}
     
-#     # Standardize features
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_val_scaled = scaler.transform(X_val)
@@ -110,7 +109,7 @@ def train_sklearn_models(X_train, y_train, X_val, y_val):
     return results, scaler, best_knn, best_svm, best_lr, best_dt
 
 def evaluate_sklearn_on_test(knn, svm, lr, dt, X_test, y_test, scaler):
-#     """Evaluate sklearn models on test set"""
+    """Evaluate sklearn models on test set"""
     X_test_scaled = scaler.transform(X_test)
     
     results = {}

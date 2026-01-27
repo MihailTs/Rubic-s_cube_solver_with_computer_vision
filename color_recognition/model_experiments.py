@@ -54,7 +54,7 @@ def main():
         batch_size=32,
     )
 
-    light testing multiple hypotheses
+    # light testing multiple hypotheses
     poolings = ['max_pooling', 'average_pooling']
     kernel_sizes = [3, 5]
     activation_functions = ['relu', 'sigmoid', 'elu', 'tanh']
