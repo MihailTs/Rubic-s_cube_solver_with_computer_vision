@@ -50,3 +50,4 @@ The "Solve" button requests the solving steps from the server and displays them.
 
 IMPRTANT NOTE: 
 **<ins> All solving operation should be executed from the perspective of the front side (the green side)!</ins>**
+=======

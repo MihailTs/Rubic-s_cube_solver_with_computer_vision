@@ -54,7 +54,7 @@ def main():
         batch_size=32,
     )
 
-    # light testing multiple hypotheses
+    light testing multiple hypotheses
     poolings = ['max_pooling', 'average_pooling']
     kernel_sizes = [3, 5]
     activation_functions = ['relu', 'sigmoid', 'elu', 'tanh']
@@ -362,9 +362,9 @@ def main():
     print(f"Test data shape: {X_test.shape}")
 
     # Training sklearn models
-    sklearn_val_results, scaler, knn, svm, lr = train_sklearn_models(X_train, y_train, X_val, y_val)
+    sklearn_val_results, scaler, knn, svm, lr, dt = train_sklearn_models(X_train, y_train, X_val, y_val)
 
-    sklearn_test_results = evaluate_sklearn_on_test(knn, svm, lr, X_test, y_test, scaler)
+    sklearn_test_results = evaluate_sklearn_on_test(knn, svm, lr, dt, X_test, y_test, scaler)
     print(sklearn_test_results)
 
     # Saving best KNN model

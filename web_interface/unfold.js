@@ -2,14 +2,7 @@ let s2 = (sketch) => {
     let squareSize;
     let padding;
     let sidePadding;
-
-    let topSideImage;
-    let frontSideImage;
-    let leftSideImage;
-    let rightSideImage;
-    let bottomSideImage;
-    let backSideImage;
-    
+    let dropZones = [];
 
     sketch.setup = function () {
         let cnv = sketch.createCanvas(2 * sketch.windowWidth / 5, 3 * sketch.windowHeight / 4);
@@ -20,6 +13,7 @@ let s2 = (sketch) => {
         sketch.frameRate(15);
 
         setupImageInputs(cnv.position().x, cnv.position().y);
+        setupDragAndDrop();
     }
 
     sketch.draw = function () {
@@ -31,13 +25,83 @@ let s2 = (sketch) => {
         drawSide(backCenterCoordinates(), sharedCubeState.backSide);
         drawSide(leftCenterCoordinates(), sharedCubeState.leftSide);
         drawSide(rightCenterCoordinates(), sharedCubeState.rightSide);
+        
+        // Highlight drop zones on hover during drag
+        highlightDropZones();
     }
 
     function addTextInstructions() {
         sketch.textSize(15);
         sketch.fill(0, 0, 40); 
-        sketch.text('Click a center square to add its corresponding side image.', 120, 20);
-        sketch.text('Click others to change color manualy.', 180, 40);
+        sketch.text('Click or drag & drop an image on a center square to add its corresponding side image.', 60, 20);
+        sketch.text('Click other squares to change color manually.', 180, 40);
+    }
+
+    function setupDragAndDrop() {
+        // Store drop zone information
+        dropZones = [
+            { coords: topCenterCoordinates(), side: sharedCubeState.topSide, name: 'top' },
+            { coords: frontCenterCoordinates(), side: sharedCubeState.frontSide, name: 'front' },
+            { coords: leftCenterCoordinates(), side: sharedCubeState.leftSide, name: 'left' },
+            { coords: rightCenterCoordinates(), side: sharedCubeState.rightSide, name: 'right' },
+            { coords: bottomCenterCoordinates(), side: sharedCubeState.bottomSide, name: 'bottom' },
+            { coords: backCenterCoordinates(), side: sharedCubeState.backSide, name: 'back' }
+        ];
+
+        // Add drag and drop event listeners to the canvas using p5's canvas element
+        const canvas = sketch.canvas;
+        
+        canvas.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        });
+
+        canvas.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+        });
+
+        canvas.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                // Get mouse position relative to canvas
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                console.log('Drop at:', x, y);
+
+                // Find which drop zone was hit
+                const targetZone = findDropZone(x, y);
+                if (targetZone) {
+                    console.log('Dropped on zone:', targetZone.name);
+                    handleSideImageInput(files[0], targetZone.side);
+                } else {
+                    console.log('No zone found at this location');
+                }
+            }
+        });
+    }
+
+    function findDropZone(mouseX, mouseY) {
+        for (let zone of dropZones) {
+            const [centerX, centerY] = zone.coords;
+            // Check if mouse is within the center square
+            if (mouseX > centerX - squareSize / 2 && 
+                mouseX < centerX + squareSize / 2 && 
+                mouseY > centerY - squareSize / 2 && 
+                mouseY < centerY + squareSize / 2) {
+                return zone;
+            }
+        }
+        return null;
+    }
+
+    function highlightDropZones() {
+        // This could be enhanced to show visual feedback during drag
+        // For now, it's a placeholder for future enhancement
     }
 
     function setupImageInputs(xoff, yoff) {
@@ -209,7 +273,7 @@ let s2 = (sketch) => {
                 console.error("Processing failed:", data.message);
             }
         } catch (error) {
-            window.alert("Upload failed:", error);
+            window.alert("Upload failed: " + error);
         }
 
     }

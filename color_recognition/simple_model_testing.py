@@ -5,6 +5,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 def load_images_to_array(dataloader, device=None):
     """Convert images from dataloader to numpy array and labels"""
@@ -24,10 +25,10 @@ def load_images_to_array(dataloader, device=None):
     return X, y
 
 def train_sklearn_models(X_train, y_train, X_val, y_val):
-    """Train KNN, SVM, and Logistic Regression models with GridSearchCV"""
+    """Train KNN, SVM, Logistic Regression, and Decision Tree models with GridSearchCV"""
     results = {}
     
-    # Standardize features
+#     # Standardize features
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_val_scaled = scaler.transform(X_val)
@@ -86,10 +87,30 @@ def train_sklearn_models(X_train, y_train, X_val, y_val):
     print(f"Logistic Regression Best Parameters: {lr_grid.best_params_}")
     print(f"Logistic Regression Validation Accuracy: {lr_accuracy:.4f}, F1 Score: {lr_f1:.4f}")
     
-    return results, scaler, best_knn, best_svm, best_lr
+    # Decision Tree GridSearch
+    print("\nTraining Decision Tree with GridSearchCV...")
+    dt_params = {
+        'criterion': ['gini', 'entropy'],
+        'max_depth': [None, 10, 20, 30, 40, 50],
+        'min_samples_split': [2, 5, 10, 20],
+        'min_samples_leaf': [1, 2, 4, 8],
+        'max_features': ['sqrt', 'log2', None]
+    }
+    dt = DecisionTreeClassifier(random_state=42)
+    dt_grid = GridSearchCV(dt, dt_params, cv=5, scoring='f1_weighted', n_jobs=-1)
+    dt_grid.fit(X_train_scaled, y_train)
+    best_dt = dt_grid.best_estimator_
+    y_pred_dt = best_dt.predict(X_val_scaled)
+    dt_accuracy = np.mean(y_pred_dt == y_val)
+    dt_f1 = f1_score(y_val, y_pred_dt, average='weighted')
+    results['Decision Tree'] = (dt_accuracy, dt_f1)
+    print(f"Decision Tree Best Parameters: {dt_grid.best_params_}")
+    print(f"Decision Tree Validation Accuracy: {dt_accuracy:.4f}, F1 Score: {dt_f1:.4f}")
 
-def evaluate_sklearn_on_test(knn, svm, lr, X_test, y_test, scaler):
-    """Evaluate sklearn models on test set"""
+    return results, scaler, best_knn, best_svm, best_lr, best_dt
+
+def evaluate_sklearn_on_test(knn, svm, lr, dt, X_test, y_test, scaler):
+#     """Evaluate sklearn models on test set"""
     X_test_scaled = scaler.transform(X_test)
     
     results = {}
@@ -114,5 +135,12 @@ def evaluate_sklearn_on_test(knn, svm, lr, X_test, y_test, scaler):
     lr_test_f1 = f1_score(y_test, y_pred, average='weighted')
     results['Logistic Regression'] = (lr_test_accuracy, lr_test_f1)
     print(f"Logistic Regression Test Accuracy: {lr_test_accuracy:.4f}, F1 Score: {lr_test_f1:.4f}")
+    
+    # Decision Tree Test
+    y_pred = dt.predict(X_test_scaled)
+    dt_test_accuracy = np.mean(y_pred == y_test)
+    dt_test_f1 = f1_score(y_test, y_pred, average='weighted')
+    results['Decision Tree'] = (dt_test_accuracy, dt_test_f1)
+    print(f"Decision Tree Test Accuracy: {dt_test_accuracy:.4f}, F1 Score: {dt_test_f1:.4f}")
     
     return results
