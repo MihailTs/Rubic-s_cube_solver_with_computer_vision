@@ -49,5 +49,5 @@ The "Solve" button requests the solving steps from the server and displays them.
 - D2: rotate the up side (whith yellow center) clockwise twice
 
 IMPRTANT NOTE: 
-**<ins> All solving operation should be executed from the perspective of the front side (the green side)!</ins>**
+**<ins> All solving operation should be executed from the perspective of the rotated side!</ins>**
 =======
