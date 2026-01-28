@@ -351,7 +351,7 @@ def predict(image, predictor):
 
 def main():
     # Choose your model here
-    use_cnn = True
+    use_cnn = False
 
     if use_cnn:
         predictor = CNNPredictor(

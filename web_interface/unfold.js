@@ -33,7 +33,7 @@ let s2 = (sketch) => {
     function addTextInstructions() {
         sketch.textSize(15);
         sketch.fill(0, 0, 40); 
-        sketch.text('Click or drag & drop an image on a center square to add its corresponding side image.', 60, 20);
+        sketch.text('Click or drag & drop an image on a center square to add its corresponding side image.', 30, 20);
         sketch.text('Click other squares to change color manually.', 180, 40);
     }
 
